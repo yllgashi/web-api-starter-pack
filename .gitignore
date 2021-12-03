@@ -1,0 +1,6 @@
+.vs/
+Models/obj/
+Repository/obj/
+Service/obj
+web-api-starter-pack/obj
+appsettings.json
