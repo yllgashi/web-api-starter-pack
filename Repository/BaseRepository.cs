@@ -3,16 +3,17 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Dynamic;
 using System.Linq;
 
 namespace Repository
 {
     public class BaseRepository
     {
-        public ResponseModel<T> Create<T>(string procedureName, Dictionary<string, object> inputParameters, ref Dictionary<string, object> outputParameters)
+        public ResponseModel Create(string procedureName, Dictionary<string, object> inputParameters, ref Dictionary<string, object> outputParameters)
         {
-            ResponseModel<T> res = new ResponseModel<T>();
-            List<T> items = new List<T>();
+            ResponseModel res = new ResponseModel();
+            List<object> items = new List<object>();
             using (var con = new SqlConnection(DbHelper.ConnectionString))
             {
                 SqlCommand com = new SqlCommand(procedureName, con);
@@ -28,11 +29,10 @@ namespace Repository
                     var reader = com.ExecuteReader();
                     if (!reader.HasRows) throw new Exception();
 
-                    List<string> genericTypePropertyNames = GetGenericTypePropertyNames<T>();
                     List<string> readerColumnNames = GetReaderColumnNames(reader);
                     while (reader.Read())
                     {
-                        T item = MapTFromReader<T>(genericTypePropertyNames, readerColumnNames, reader);
+                        object item = MapObjectFromReader(readerColumnNames, reader);
 
                     }
                     res.Error = false;
@@ -46,7 +46,7 @@ namespace Repository
                     res.Error = true;
                     res.Message = "Something went wrong";
                     res.StatusCode = 500;
-                    res.Results = new List<T>();
+                    res.Results = new List<object>();
                     return res;
                 }
 
@@ -54,18 +54,14 @@ namespace Repository
         }
 
 
-        private T MapTFromReader<T>(List<string> genericTypePropertyNames, List<string> readerColumnNames, SqlDataReader reader)
+        private object MapObjectFromReader(List<string> genericTypePropertyNames, SqlDataReader reader)
         {
-            // find if a property from T is the same as
-            // reader column name
-            object objectToMap;
+            var dynamicObject = new ExpandoObject();
             foreach (string item in genericTypePropertyNames)
             {
-                if(readerColumnNames.FindIndex(x => x == item) != -1)
-                {
-                    objectToMap["item"] = reader["item"].ToString();
-                }
+                dynamicObject.TryAdd(item, reader["item"].ToString());
             }
+            return dynamicObject;
         }
 
         #region FetchPropertyNamesLogic
