@@ -33,6 +33,7 @@ namespace Repository
                     while (reader.Read())
                     {
                         object item = MapObjectFromReader(readerColumnNames, reader);
+                        items.Add(item);
 
                     }
                     res.Error = false;
@@ -43,10 +44,7 @@ namespace Repository
                 }
                 catch (Exception ex)
                 {
-                    res.Error = true;
-                    res.Message = "Something went wrong";
-                    res.StatusCode = 500;
-                    res.Results = new List<object>();
+                    res = InitalizeErrorResponse(500, "Something went wrong");
                     return res;
                 }
 
@@ -56,17 +54,13 @@ namespace Repository
 
         private object MapObjectFromReader(List<string> genericTypePropertyNames, SqlDataReader reader)
         {
-            //dynamic dynamicObject = new ExpandoObject();
-            //foreach (string item in genericTypePropertyNames)
-            //{
-            //    dynamicObject["item"] = reader[item].ToString();
-            //}
-            //return dynamicObject;
-            dynamic expando = new ExpandoObject();
+            
+            dynamic dynamicObject = new ExpandoObject();
+            IDictionary<string, object> myUnderlyingObject = dynamicObject;
             foreach (string item in genericTypePropertyNames)
-                expando.Add(item, reader[item].ToString());
+                myUnderlyingObject.Add(item, reader[item].ToString());
 
-            return expando;
+            return dynamicObject;
         }
 
         #region FetchPropertyNamesLogic
@@ -87,13 +81,18 @@ namespace Repository
             .Select(reader.GetName)
             .ToList();
 
-            //for (int i = 0; i < columnNames.Count; i++)
-            //{
-            //    columnNames[i] = columnNames[i].ToLower();
-            //}
-
             return columnNames;
         }
         #endregion
+
+        private ResponseModel InitalizeErrorResponse(int statusCode, string message)
+        {
+            ResponseModel res = new ResponseModel();
+            res.Error = true;
+            res.Message = message;
+            res.StatusCode = statusCode;
+            res.Results = new List<object>();
+            return res;
+        }
     }
 }
