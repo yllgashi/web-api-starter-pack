@@ -56,12 +56,17 @@ namespace Repository
 
         private object MapObjectFromReader(List<string> genericTypePropertyNames, SqlDataReader reader)
         {
-            var dynamicObject = new ExpandoObject();
+            //dynamic dynamicObject = new ExpandoObject();
+            //foreach (string item in genericTypePropertyNames)
+            //{
+            //    dynamicObject["item"] = reader[item].ToString();
+            //}
+            //return dynamicObject;
+            dynamic expando = new ExpandoObject();
             foreach (string item in genericTypePropertyNames)
-            {
-                dynamicObject.TryAdd(item, reader["item"].ToString());
-            }
-            return dynamicObject;
+                expando.Add(item, reader[item].ToString());
+
+            return expando;
         }
 
         #region FetchPropertyNamesLogic
@@ -82,7 +87,10 @@ namespace Repository
             .Select(reader.GetName)
             .ToList();
 
-            columnNames.ForEach(p => p = p.ToLower());
+            //for (int i = 0; i < columnNames.Count; i++)
+            //{
+            //    columnNames[i] = columnNames[i].ToLower();
+            //}
 
             return columnNames;
         }

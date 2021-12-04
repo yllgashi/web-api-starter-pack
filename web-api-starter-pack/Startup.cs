@@ -22,19 +22,19 @@ namespace web_api_starter_pack
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors(options =>
-            {
-                options.AddPolicy("CorsPolicy",
-                    builder => builder.AllowAnyOrigin()
-                    .AllowAnyMethod()
-                    .AllowAnyHeader());
+            //services.AddCors(options =>
+            //{
+            //    options.AddPolicy("CorsPolicy",
+            //        builder => builder.AllowAnyOrigin()
+            //        .AllowAnyMethod()
+            //        .AllowAnyHeader());
 
 
-                options.AddPolicy("SameOrigin",
-                    builder => builder.WithOrigins(
-                        "http://localhost:4200"
-                    ).AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
-            });
+            //    options.AddPolicy("SameOrigin",
+            //        builder => builder.WithOrigins(
+            //            "http://localhost:4200"
+            //        ).AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
+            //});
 
             Models.DbHelper.ConnectionString = Configuration["ConnectionStrings:ConnectionString"];
 
@@ -55,10 +55,10 @@ namespace web_api_starter_pack
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "web_api_starter_pack v1"));
             }
 
-            //app.UseHttpsRedirection();
+            app.UseHttpsRedirection();
 
             app.UseRouting();
-            app.UseCors("SameOrigin");
+            //app.UseCors("SameOrigin");
 
             app.UseAuthorization();
 

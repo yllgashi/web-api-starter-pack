@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 
 namespace web_api_starter_pack.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
     public class UserController : Controller
     {
         private UserService userService;
@@ -18,8 +16,9 @@ namespace web_api_starter_pack.Controllers
             return View();
         }
 
-        [HttpPost("users")]
-        public IActionResult Create(User user)
+        [Route("users")]
+        [HttpPost]
+        public IActionResult Create([FromBody] User user)
         {
             userService = new UserService();
             ResponseModel res = userService.Create(user);
